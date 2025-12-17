@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Simulador Quadro Elétrico</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="wrapper">
+<div class="panel layout">
+
+<div class="sim">
+
+<h2>Simulador – Quadro Elétrico Industrial</h2>
+
+<svg width="860" height="420">
+
+  <!-- DISJUNTOR -->
+  <rect x="20" y="140" width="140" height="120" rx="14"/>
+  <text x="90" y="160" class="label">DISJUNTOR</text>
+  <rect id="lever" x="85" y="210" width="10" height="40" rx="4"/>
+
+  <!-- INVERSOR -->
+  <rect x="220" y="100" width="220" height="200" rx="16"/>
+  <text x="330" y="125" class="label">INVERSOR</text>
+
+  <!-- VISOR ERRO -->
+  <rect x="300" y="145" width="90" height="32" rx="6"/>
+  <text id="errCode" x="345" y="167" text-anchor="middle">---</text>
+
+  <!-- LED FALHA -->
+  <circle id="ledFault" cx="410" cy="160" r="6"/>
+
+  <!-- LED FASES -->
+  <circle id="ledR" cx="250" cy="130" r="5"/>
+  <circle id="ledS" cx="270" cy="130" r="5"/>
+  <circle id="ledT" cx="290" cy="130" r="5"/>
+
+  <!-- CABOS -->
+  <line x1="160" y1="180" x2="220" y2="180" class="phaseR"/>
+  <line x1="160" y1="200" x2="220" y2="200" class="phaseS"/>
+  <line x1="160" y1="220" x2="220" y2="220" class="phaseT"/>
+
+  <line x1="440" y1="180" x2="600" y2="180" class="phaseR"/>
+  <line x1="440" y1="200" x2="600" y2="200" class="phaseS"/>
+  <line x1="440" y1="220" x2="600" y2="220" class="phaseT"/>
+
+  <!-- ENERGIA -->
+  <line id="rInE"  x1="160" y1="180" x2="220" y2="180" class="energy"/>
+  <line id="sInE"  x1="160" y1="200" x2="220" y2="200" class="energy"/>
+  <line id="tInE"  x1="160" y1="220" x2="220" y2="220" class="energy"/>
+
+  <line id="rOutE" x1="440" y1="180" x2="600" y2="180" class="energy"/>
+  <line id="sOutE" x1="440" y1="200" x2="600" y2="200" class="energy"/>
+  <line id="tOutE" x1="440" y1="220" x2="600" y2="220" class="energy"/>
+
+  <!-- FAÍSCA -->
+  <circle id="spark" cx="440" cy="200" r="6" fill="#fde047" style="display:none"/>
+
+  <!-- BOMBA -->
+  <circle cx="660" cy="200" r="60"/>
+  <line id="imp1" x1="660" y1="165" x2="660" y2="235"/>
+  <line id="imp2" x1="625" y1="200" x2="695" y2="200"/>
+  <text x="660" y="290" text-anchor="middle" class="label">BOMBA</text>
+
+</svg>
+
+<div class="btns">
+  <button class="start" onclick="start()">LIGAR</button>
+  <button class="stop" onclick="stop()">DESLIGAR</button>
+  <button class="reset" onclick="resetAll()">RESET</button>
+</div>
+
+<div class="btns">
+  <button class="fault" onclick="setFault('OC')">SOBRECORRENTE</button>
+  <button class="fault" onclick="setFault('UV')">SUBTENSÃO</button>
+  <button class="fault" onclick="setFault('OV')">SOBRETENSÃO</button>
+  <button class="fault" onclick="setFault('FR')">FALTA R</button>
+  <button class="fault" onclick="setFault('FS')">FALTA S</button>
+  <button class="fault" onclick="setFault('FT')">FALTA T</button>
+</div>
+
+<div class="readings">
+  <div class="reading">Status<br><span id="statusEl">DESLIGADO</span></div>
+  <div class="reading">Freq<br><span id="freqEl">0</span> Hz</div>
+  <div class="reading">Corrente<br><span id="ampEl">0</span> A</div>
+</div>
+
+</div>
+
+<!-- LEGENDA -->
+<div class="fault-list">
+  <h3>Legenda de Falhas</h3>
+  <ul>
+    <li><strong>E101</strong> – Sobrecorrente</li>
+    <li><strong>E102</strong> – Subtensão</li>
+    <li><strong>E103</strong> – Sobretensão</li>
+    <li><strong>E201</strong> – Falta fase R</li>
+    <li><strong>E202</strong> – Falta fase S</li>
+    <li><strong>E203</strong> – Falta fase T</li>
+    <li><strong>E204–E206</strong> – Duas fases ausentes</li>
+    <li><strong>E207</strong> – Falta total de fases</li>
+    <li><strong>E301–E303</strong> – Falta + sobrecorrente</li>
+    <li><strong>E999</strong> – Falha múltipla</li>
+  </ul>
+</div>
+
+</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
