@@ -238,11 +238,27 @@ function applyFaultBehavior() {
     return;
   }
 
-  if (faults.has('FR')) {
-    energyMap.R.forEach(id => document.getElementById(id).style.display = 'none');
-    slowStop(2200, 'PARADO POR FALHA');
-    return;
-  }
+  let phaseFault = false;
+
+if (faults.has('FR')) {
+  energyMap.R.forEach(id => document.getElementById(id).style.display = 'none');
+  phaseFault = true;
+}
+
+if (faults.has('FS')) {
+  energyMap.S.forEach(id => document.getElementById(id).style.display = 'none');
+  phaseFault = true;
+}
+
+if (faults.has('FT')) {
+  energyMap.T.forEach(id => document.getElementById(id).style.display = 'none');
+  phaseFault = true;
+}
+
+if (phaseFault) {
+  slowStop(2200);
+  return;
+}
 
   if (faults.has('FS')) {
     energyMap.S.forEach(id => document.getElementById(id).style.display = 'none');
@@ -274,3 +290,4 @@ function setFault(f) {
     applyFaultBehavior();
   }, 2000);
 }
+
