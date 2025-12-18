@@ -1,3 +1,5 @@
+/* ====== LEGENDA ====== */
+
 const legendBtn = document.getElementById('legendBtn');
 const legendBox = document.getElementById('legendBox');
 
@@ -33,6 +35,9 @@ let spin;
 let angle = 0;
 let faultTimer = null;
 
+/* >>> CONTROLE DE RAMPA <<< */
+let rampUpInterval = null;
+
 let pumpState = 'DESLIGADO';
 
 const statusEl = document.getElementById('statusEl');
@@ -53,22 +58,24 @@ const energyMap = {
   T:['tInE','tOutE','ledT']
 };
 
-function updateStatus() {
-  statusEl.textContent = pumpState;
+/* ================= STATUS ================= */
+
+function updateStatus(){
+  statusEl.innerText = pumpState;
 }
 
 /* ================= DISJUNTOR ================= */
 
-function breaker(on) {
+function breaker(on){
   lever.setAttribute('y', on ? 170 : 210);
 }
 
 /* ================= ENERGIA ================= */
 
-function energize(on) {
-  Object.values(energyMap).flat().forEach(id => {
+function energize(on){
+  Object.values(energyMap).flat().forEach(id=>{
     const el = document.getElementById(id);
-    if (el && el.tagName === 'line') {
+    if(el && el.tagName === 'line'){
       el.style.display = on ? 'block' : 'none';
     }
   });
@@ -76,35 +83,35 @@ function energize(on) {
 
 /* ================= BOMBA ================= */
 
-function spinPump() {
+function spinPump(){
   clearInterval(spin);
-  spin = setInterval(() => {
-    if (!running) return;
+  spin = setInterval(()=>{
+    if(!running) return;
 
     const speed = Math.max(4, freq * 0.6);
     angle += speed;
 
     imp1.setAttribute('transform', `rotate(${angle} 660 200)`);
     imp2.setAttribute('transform', `rotate(${angle} 660 200)`);
-  }, 30);
+  },30);
 }
 
 /* ================= PARADA SUAVE ================= */
 
-function slowStop(time = 2500, finalState = 'DESLIGADO') {
+function slowStop(time = 2500, finalState = 'DESLIGADO'){
   const steps = 30;
   const stepFreq = freq / steps;
-  const stepAmp = amp / steps;
+  const stepAmp  = amp  / steps;
   const stepTime = time / steps;
 
-  const decel = setInterval(() => {
+  const decel = setInterval(()=>{
     freq = Math.max(0, freq - stepFreq);
-    amp = Math.max(0, amp - stepAmp);
+    amp  = Math.max(0, amp  - stepAmp);
 
     freqEl.innerText = freq.toFixed(0);
-    ampEl.innerText = amp.toFixed(1);
+    ampEl.innerText  = amp.toFixed(1);
 
-    if (freq <= 0) {
+    if(freq <= 0){
       clearInterval(decel);
       running = false;
       energize(false);
@@ -118,15 +125,17 @@ function slowStop(time = 2500, finalState = 'DESLIGADO') {
 
 /* ================= FAÍSCA ================= */
 
-function sparkEffect(duration = 800) {
+function sparkEffect(duration = 800){
   spark.style.display = 'block';
-  setTimeout(() => spark.style.display = 'none', duration);
+  setTimeout(()=>spark.style.display='none',duration);
 }
 
 /* ================= START ================= */
 
-function start() {
-  if (running || trip) return;
+function start(){
+  if(running || trip) return;
+
+  clearInterval(rampUpInterval);
 
   running = true;
   pumpState = 'RAMP UP';
@@ -136,181 +145,171 @@ function start() {
   energize(true);
   spinPump();
 
-  const up = setInterval(() => {
-    if (!running || trip) {
-      clearInterval(up);
+  rampUpInterval = setInterval(()=>{
+    if(!running || trip){
+      clearInterval(rampUpInterval);
       return;
     }
 
-    if (freq < 60) {
+    if(freq < 60){
       freq += 2;
       amp = freq * 0.35;
-    } else {
+    }else{
       pumpState = 'EM REGIME';
       updateStatus();
-      clearInterval(up);
+      clearInterval(rampUpInterval);
     }
 
     freqEl.innerText = freq.toFixed(0);
-    ampEl.innerText = amp.toFixed(1);
-  }, 150);
+    ampEl.innerText  = amp.toFixed(1);
+  },150);
 }
 
-/* ================= STOP (AGORA SUAVE) ================= */
+/* ================= STOP ================= */
 
-function stop() {
-  if (!running || trip) return;
+function stop(){
+  if(!running || trip) return;
+
+  clearInterval(rampUpInterval);
 
   pumpState = 'DESACELERANDO';
   updateStatus();
 
-  slowStop(2500, 'DESLIGADO');
+  slowStop(2500,'DESLIGADO');
 }
 
-/* ================= RESET (AGORA SUAVE) ================= */
+/* ================= RESET ================= */
 
-function resetAll() {
+function resetAll(){
   clearTimeout(faultTimer);
+  clearInterval(rampUpInterval);
 
-  if (running) {
+  if(running){
     pumpState = 'DESACELERANDO';
     updateStatus();
 
-    slowStop(2000, 'DESLIGADO');
-
-    setTimeout(clearResetState, 2100);
-  } else {
+    slowStop(2000,'DESLIGADO');
+    setTimeout(clearResetState,2100);
+  }else{
     clearResetState();
   }
 }
 
-function clearResetState() {
+function clearResetState(){
   faults.clear();
   trip = false;
   faultPending = false;
+  running = false;
 
   freq = 0;
-  amp = 0;
+  amp  = 0;
   angle = 0;
 
-  ['ledR', 'ledS', 'ledT'].forEach(id => {
-    document.getElementById(id).style.display = 'block';
+  ['ledR','ledS','ledT'].forEach(id=>{
+    document.getElementById(id).style.display='block';
   });
 
   errCode.textContent = '---';
-  ledFault.setAttribute('fill', '#3f3f46');
+  ledFault.setAttribute('fill','#3f3f46');
 
   pumpState = 'DESLIGADO';
   updateStatus();
 
   freqEl.innerText = 0;
-  ampEl.innerText = 0;
+  ampEl.innerText  = 0;
 }
 
 /* ================= ERRO ================= */
 
-function calcError() {
+function calcError(){
   const f = [...faults].sort().join('+');
 
   const map = {
-    'OC': 'E101',
-    'UV': 'E102',
-    'OV': 'E103',
+    'OC':'E101',
+    'UV':'E102',
+    'OV':'E103',
 
-    'FR': 'E201',
-    'FS': 'E202',
-    'FT': 'E203',
+    'FR':'E201',
+    'FS':'E202',
+    'FT':'E203',
 
-    'FR+FS': 'E204',
-    'FR+FT': 'E205',
-    'FS+FT': 'E206',
-    'FR+FS+FT': 'E207',
+    'FR+FS':'E204',
+    'FR+FT':'E205',
+    'FS+FT':'E206',
+    'FR+FS+FT':'E207',
 
-    // combinações ORDENADAS corretamente
-    'FR+OC': 'E301',
-    'FS+OC': 'E302',
-    'FT+OC': 'E303'
+    'FR+OC':'E301',
+    'FS+OC':'E302',
+    'FT+OC':'E303'
   };
 
   return map[f] || 'E999';
 }
 
-
 /* ================= APLICA FALHA ================= */
 
-function applyFaultBehavior() {
+function applyFaultBehavior(){
+  clearInterval(rampUpInterval);
+
   trip = true;
-  ledFault.setAttribute('fill', '#dc2626');
+  ledFault.setAttribute('fill','#dc2626');
   errCode.textContent = calcError();
 
-  if (faults.has('OC')) {
+  if(faults.has('OC')){
     amp += 15;
     sparkEffect();
-    slowStop(1800, 'PARADO POR FALHA');
+    slowStop(1800,'PARADO POR FALHA');
     return;
   }
 
-  if (faults.has('UV')) {
-    slowStop(3200, 'PARADO POR FALHA');
+  if(faults.has('UV')){
+    slowStop(3200,'PARADO POR FALHA');
     return;
   }
 
-  if (faults.has('OV')) {
+  if(faults.has('OV')){
     sparkEffect();
-    slowStop(1400, 'PARADO POR FALHA');
+    slowStop(1400,'PARADO POR FALHA');
     return;
   }
 
   let phaseFault = false;
 
-if (faults.has('FR')) {
-  energyMap.R.forEach(id => document.getElementById(id).style.display = 'none');
-  phaseFault = true;
-}
+  if(faults.has('FR')){
+    energyMap.R.forEach(id=>document.getElementById(id).style.display='none');
+    phaseFault = true;
+  }
 
-if (faults.has('FS')) {
-  energyMap.S.forEach(id => document.getElementById(id).style.display = 'none');
-  phaseFault = true;
-}
+  if(faults.has('FS')){
+    energyMap.S.forEach(id=>document.getElementById(id).style.display='none');
+    phaseFault = true;
+  }
 
-if (faults.has('FT')) {
-  energyMap.T.forEach(id => document.getElementById(id).style.display = 'none');
-  phaseFault = true;
-}
+  if(faults.has('FT')){
+    energyMap.T.forEach(id=>document.getElementById(id).style.display='none');
+    phaseFault = true;
+  }
 
-if (phaseFault) {
-  slowStop(2200);
-  return;
-}
-
-
-  if (faults.has('FS')) {
-    energyMap.S.forEach(id => document.getElementById(id).style.display = 'none');
-    slowStop(2200, 'PARADO POR FALHA');
+  if(phaseFault){
+    slowStop(2200,'PARADO POR FALHA');
     return;
   }
 
-  if (faults.has('FT')) {
-    energyMap.T.forEach(id => document.getElementById(id).style.display = 'none');
-    slowStop(2200, 'PARADO POR FALHA');
-    return;
-  }
-
-  slowStop(2000, 'PARADO POR FALHA');
+  slowStop(2000,'PARADO POR FALHA');
 }
 
 /* ================= SET FAULT ================= */
 
-function setFault(f) {
+function setFault(f){
   faults.add(f);
 
-  if (faultPending) return;
+  if(faultPending) return;
 
   faultPending = true;
   pumpState = 'ANALISANDO FALHA...';
   updateStatus();
 
-  faultTimer = setTimeout(() => {
+  faultTimer = setTimeout(()=>{
     applyFaultBehavior();
-  }, 2000);
+  },2000);
 }
