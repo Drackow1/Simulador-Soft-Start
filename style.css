@@ -1,0 +1,285 @@
+/* ================= BASE ================= */
+
+body{
+  margin:0;
+  background:#0b1220;
+  color:#e5e7eb;
+  font-family:Arial;
+  overflow-x:hidden;
+}
+
+/* ================= WRAPPER ================= */
+
+.wrapper{
+  padding:16px;
+  min-height:100vh;
+  box-sizing:border-box;
+}
+
+/* ================= PAINEL ================= */
+
+.panel{
+  background:#020617;
+  border:2px solid #334155;
+  border-radius:16px;
+  padding:20px;
+  margin:auto;
+  max-width:1400px;
+}
+
+/* ================= TÍTULO ================= */
+
+.panel h2{
+  margin:0 0 18px;
+  text-align:center;
+  font-size:22px;
+}
+
+/* ================= LAYOUT ================= */
+
+.layout{
+  display:flex;
+  justify-content:center;
+}
+
+/* ================= SIMULADOR ================= */
+
+.sim{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+
+/* ================= BLOCO ESCALÁVEL REAL ================= */
+
+.sim-scale{
+  width:900px;
+  max-width:100%;
+  transform-origin: top center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+}
+
+/* ================= PALCO ================= */
+
+.sim-stage{
+  width:100%;
+  aspect-ratio: 860 / 420;
+  background:#020617;
+  border:1px solid #334155;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  box-sizing:border-box;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ================= SVG ================= */
+
+.sim-core{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* ================= DESENHO ================= */
+
+rect,circle,line{
+  stroke:#64748b;
+  fill:none;
+  stroke-width:2;
+}
+
+.label{
+  fill:#94a3b8;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.phaseR{stroke:#ef4444;stroke-width:6}
+.phaseS{stroke:#facc15;stroke-width:6}
+.phaseT{stroke:#3b82f6;stroke-width:6}
+
+/* ================= ENERGIA ================= */
+
+.energy{
+  stroke:#fde047;
+  stroke-width:4;
+  stroke-dasharray:2 14;
+  animation:flow .6s linear infinite;
+  display:none;
+}
+
+@keyframes flow{
+  to{stroke-dashoffset:-16}
+}
+
+/* ================= VISOR / LEDS ================= */
+
+#errCode{
+  fill:#eab308;
+  font-weight:bold;
+  font-size:24px;
+}
+
+#ledFault{fill:#3f3f46}
+#ledR{fill:#ef4444}
+#ledS{fill:#facc15}
+#ledT{fill:#3b82f6}
+
+/* ================= FAÍSCA (NOVO – REALISTA) ================= */
+
+.spark-line{
+  stroke:#fde047;
+  stroke-width:1.2;
+  stroke-linecap:round;
+  filter:
+    drop-shadow(0 0 2px #fde047)
+    drop-shadow(0 0 6px #fde047);
+  opacity:.9;
+  animation:sparkFade .18s linear forwards;
+}
+
+@keyframes sparkFade{
+  to{ opacity:0; }
+}
+
+/* ================= FUMAÇA (NOVO – REALISTA) ================= */
+
+.smoke-puff{
+  fill:#9ca3af;
+  opacity:.35;
+  filter:blur(8px);
+  animation:smokeRise 3.5s ease-out forwards;
+}
+
+@keyframes smokeRise{
+  0%{
+    transform:translateY(0) scale(1);
+    opacity:.35;
+  }
+  100%{
+    transform:translateY(-35px) scale(1.3);
+    opacity:0;
+  }
+}
+
+/* ================= BLACKOUT ================= */
+
+#blackout{
+  position:absolute;
+  inset:0;
+  background:#020617;
+  opacity:0;
+  pointer-events:none;
+  z-index:50;
+}
+
+/* ================= BOTÕES ================= */
+
+.btns{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+button{
+  padding:8px 14px;
+  border-radius:10px;
+  border:none;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.start{background:#16a34a;color:#fff}
+.stop{background:#dc2626;color:#fff}
+.reset{background:#2563eb;color:#fff}
+.fault{background:#eab308;color:#000}
+
+/* ================= LEITURAS ================= */
+
+.readings{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.reading{
+  border:1px solid #334155;
+  border-radius:10px;
+  padding:10px;
+  text-align:center;
+  background:#020617;
+}
+
+.reading span{
+  font-size:18px;
+  font-weight:bold;
+}
+
+/* ================= LEGENDA ================= */
+
+#legendBtn{
+  position:fixed;
+  top:16px;
+  right:16px;
+  z-index:3000;
+  background:#eab308;
+  color:#020617;
+  border:none;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 0 12px rgba(0,0,0,.6);
+}
+
+.fault-list{
+  position:fixed;
+  top:60px;
+  right:16px;
+  width:280px;
+  background:#020617;
+  border:2px solid #334155;
+  border-radius:14px;
+  padding:12px;
+  z-index:2999;
+  opacity:0;
+  transform:translateY(-10px);
+  pointer-events:none;
+  transition:.25s ease;
+}
+
+.fault-list.open{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+/* ================= RESPONSIVO ================= */
+
+@media(max-width:1000px){
+  .sim-scale{ transform:scale(0.9); }
+}
+
+@media(max-width:800px){
+  .sim-scale{ transform:scale(0.8); }
+}
+
+@media(max-width:600px){
+  .sim-scale{ transform:scale(0.7); }
+  .readings{ grid-template-columns:1fr; }
+}
+
+@media(max-width:450px){
+  .sim-scale{ transform:scale(0.6); }
+}
